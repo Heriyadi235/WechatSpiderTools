@@ -3,6 +3,7 @@ import re
 from urllib import request
 from bs4 import BeautifulSoup
 import time
+import os
 #这是爬虫的核心操作
 def html2text(arurl):
     #head = {}
@@ -39,26 +40,44 @@ def html2text(arurl):
     filename = re.sub('[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+','',title)
     #print('手动断点')
     #with open('E:\\spidersour\\' + info + filename + '.txt', 'w+', encoding='utf-8') as f:
-    with open('E:\\spidersour\\' + info +' '+ filename + '.txt', 'w+', encoding='utf-8') as f:
+    os.makedirs('E:\\spidersour\\results\\'+filename)
+    with open('E:\\spidersour\\results\\'+filename+"\\" + info +' '+ filename + '.txt', 'w+', encoding='utf-8') as f:
         f.write(title + '\n' )
         f.write(info + '\n' )
         f.write(text + '\n' )
-        #f.write('这里是正文\n' )
-        f.write('图片链接' + '\n')
+        #f.write('图片链接' + '\n')
         #f.write(arurl + '\n' )
         #图片这要重写
         imglist = soup.find_all(name='img')
+
         for i in imglist:
                 #print(each.get('data-src'))
-            #f.write(i['data-src']+ '\n')
-            f.write(str(i.get('data-src'))+ '\n')
-                    #i += 1
-                #if i > 4:
-                    #break
+            #f.write(str(i.get('data-src'))+ '\n')
+            #num = 0
+            img_data = str(i.get('data-src'))
+
+            #print('手动断点')
+            #print(img_data)
+            if img_data == 'None':
+                continue
+                #判断图片类型
+            if img_data[4] == 's':
+                img_type = img_data[28:31]
+            else:
+                img_type = img_data[27:30]
+            #print(img_type)
+            #保存到文件夹
+            response = request.urlopen(img_data)
+            img = response.read()
+
+            with open('E:\\spidersour\\results\\'+filename+"\\"+img_data[81:90]+"."+str(img_type), 'wb') as pic:
+                pic.write(img)
+            #num += 1
         print('图片爬取完毕')
         f.write('原文链接' + '\n')
         f.write(arurl + '\n')
         f.close()
+        #print('手动断点')
     #print(info)
     print('文章' + title + ' 已保存到本地')
     print('==========================================================================================================')
